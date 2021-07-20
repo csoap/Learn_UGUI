@@ -700,6 +700,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab7b38d60c9f6a944831d24146f39793, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  autoScrollProperties:
+    enable: 0
+    speed: {x: 1, y: 1}
+  scrollToCenterProperties:
+    enable: 0
+    speed: 100
+  directionSign: 1
   prefabSource:
     prefabName: ScrollCell2
     poolSize: 5
@@ -1472,6 +1479,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce71017a2903f7c4c9a699e438d0b897, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  autoScrollProperties:
+    enable: 0
+    speed: {x: 1, y: 1}
+  scrollToCenterProperties:
+    enable: 0
+    speed: 100
+  directionSign: 1
   prefabSource:
     prefabName: ScrollCell1
     poolSize: 5
@@ -1576,6 +1590,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab7b38d60c9f6a944831d24146f39793, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  autoScrollProperties:
+    enable: 0
+    speed: {x: 1, y: 1}
+  scrollToCenterProperties:
+    enable: 0
+    speed: 100
+  directionSign: 1
   prefabSource:
     prefabName: ScrollCell2
     poolSize: 5
@@ -1942,16 +1963,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce71017a2903f7c4c9a699e438d0b897, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  autoScrollProperties:
+    enable: 0
+    speed: {x: 1, y: 10}
+  scrollToCenterProperties:
+    enable: 1
+    speed: 100
+  directionSign: 1
   prefabSource:
     prefabName: ScrollCell1
     poolSize: 5
-  totalCount: 0
+  totalCount: -1
   reverseDirection: 0
   rubberScale: 1
   m_Content: {fileID: 1193905515}
   m_Horizontal: 0
   m_Vertical: 1
-  m_MovementType: 1
+  m_MovementType: 0
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
@@ -1990,7 +2018,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c41ca759a5d70b448b991ca2699766ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalCount: 50
+  totalCount: -1
 --- !u!222 &1320192880
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2465,6 +2493,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab7b38d60c9f6a944831d24146f39793, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  autoScrollProperties:
+    enable: 0
+    speed: {x: 1, y: 1}
+  scrollToCenterProperties:
+    enable: 0
+    speed: 100
+  directionSign: 1
   prefabSource:
     prefabName: ScrollCell2
     poolSize: 5
@@ -2711,6 +2746,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce71017a2903f7c4c9a699e438d0b897, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  autoScrollProperties:
+    enable: 0
+    speed: {x: 1, y: 1}
+  scrollToCenterProperties:
+    enable: 0
+    speed: 100
+  directionSign: 1
   prefabSource:
     prefabName: ScrollCell3
     poolSize: 5

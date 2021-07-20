@@ -13,6 +13,44 @@ namespace UnityEngine.UI
     //IInitializePotentialDragHandler 提前告知可能触发拖拽的接口, IXXXDragHandler：三个拖拽接口, ICanvasElement： Canvas重建接口，当Canvas发生更新时执行重建操作
     public abstract class LoopScrollRect : UIBehaviour, IInitializePotentialDragHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IScrollHandler, ICanvasElement, ILayoutElement, ILayoutGroup
     {
+        //==========czz=================
+
+        [Serializable]
+        struct AutoScrollProperties
+        {
+            public bool enable;
+            public Vector2 speed;
+        }
+
+        [SerializeField, Tooltip("自动轮播")]
+        AutoScrollProperties autoScrollProperties = new AutoScrollProperties { enable = false, speed = Vector2.one };
+        public virtual void OnAutoScroll(Vector2 delta)
+        {
+            if (!IsActive())
+                return;
+
+            EnsureLayoutHasRebuilt();
+            UpdateBounds();
+
+            if (vertical && !horizontal)
+            {
+                if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
+                    delta.y = delta.x;
+                delta.x = 0;
+            }
+            if (horizontal && !vertical)
+            {
+                if (Mathf.Abs(delta.y) > Mathf.Abs(delta.x))
+                    delta.x = delta.y;
+                delta.y = 0;
+            }
+
+            Vector2 position = m_Content.anchoredPosition;
+            position += delta * m_ScrollSensitivity;
+            SetContentAnchoredPosition(position);
+            UpdateBounds();
+        }
+
         //==========LoopScrollRect==========
         [Tooltip("Prefab Source")]
         public LoopScrollPrefabSource prefabSource;
@@ -35,11 +73,11 @@ namespace UnityEngine.UI
             }
         }
 
-        protected float threshold = 0;
+        protected float threshold = 0; //临界点
         [Tooltip("Reverse direction for dragging")]
         public bool reverseDirection = false;
         [Tooltip("Rubber scale for outside")]
-        public float rubberScale = 1;
+        public float rubberScale = 1; //橡胶缩放
 
         protected int itemTypeStart = 0;
         protected int itemTypeEnd = 0;
@@ -144,7 +182,7 @@ namespace UnityEngine.UI
 
         public enum MovementType
         {
-            Unrestricted, // Unrestricted movement -- can scroll forever
+            Unrestricted, // Unrestricted movement -- can scroll forever 无限制
             Elastic, // Restricted but flexible -- can go past the edges, but springs back in place
             Clamped, // Restricted movement where it's not possible to go past the edges
         }
@@ -361,14 +399,14 @@ namespace UnityEngine.UI
         IEnumerator ScrollToCellCoroutine(int index, float speed)
         {
             bool needMoving = true;
-            // Debug.Log(itemTypeStart); //移动之前item起始索引
-            // Debug.Log(itemTypeEnd); // 移动之前的item结束索引
             while (needMoving)
             {
                 yield return null;
                 if (!m_Dragging)
                 {
                     float move = 0;
+
+                    // itemTypeStart 移动之前item起始索引, itemTypeEnd 移动之前的item结束索引
                     if (index < itemTypeStart)
                     {
                         move = -Time.deltaTime * speed;
@@ -474,7 +512,6 @@ namespace UnityEngine.UI
             ReturnToTempPool(!reverseDirection, m_Content.childCount);
 
             float sizeToFill = Mathf.Abs(GetDimension(viewRect.rect.size)), sizeFilled = 0;
-
             while (sizeToFill > sizeFilled)
             {
                 float size = reverseDirection ? NewItemAtEnd() : NewItemAtStart();
@@ -545,13 +582,13 @@ namespace UnityEngine.UI
                     break;
                 sizeFilled += size;
             }
-
             if (fillViewRect && itemSize > 0 && sizeFilled < sizeToFill)
             {
+                // 计算可以在偏移量上方添加多少项，因此它在视图中仍然可见
                 int itemsToAddCount = (int)((sizeToFill - sizeFilled) / itemSize);        //calculate how many items can be added above the offset, so it still is visible in the view
                 int newOffset = offset - itemsToAddCount;
                 if (newOffset < 0) newOffset = 0;
-                if (newOffset != offset) RefillCells(newOffset);                 //refill again, with the new offset value, and now with fillViewRect disabled.
+                if (newOffset != offset) RefillCells(newOffset);                 //refill again, with the new offset value, and now with fillViewRect disabled. 再次重新填充，使用新的偏移值，现在禁用 fillViewRect。
             }
 
             Vector2 pos = m_Content.anchoredPosition;
@@ -708,6 +745,7 @@ namespace UnityEngine.UI
         int deletedItemTypeEnd = 0;
         protected RectTransform GetFromTempPool(int itemIdx)
         {
+            Debug.Log("GetFromTempPool # deletedItemTypeStart: " + deletedItemTypeStart + " deletedItemTypeEnd: " + deletedItemTypeEnd);
             RectTransform nextItem = null;
             if (deletedItemTypeStart > 0)
             {
@@ -732,6 +770,7 @@ namespace UnityEngine.UI
         }
         protected void ReturnToTempPool(bool fromStart, int count = 1)
         {
+            Debug.Log("ReturnToTempPool # deletedItemTypeStart: " + deletedItemTypeStart + " deletedItemTypeEnd: " + deletedItemTypeEnd + " count:" + count);
             if (fromStart)
                 deletedItemTypeStart += count;
             else
@@ -951,6 +990,11 @@ namespace UnityEngine.UI
 
         protected virtual void LateUpdate()
         {
+            if (autoScrollProperties.enable)
+            {
+                OnAutoScroll(autoScrollProperties.speed);
+            }
+
             if (!m_Content)
                 return;
 
@@ -974,7 +1018,7 @@ namespace UnityEngine.UI
                     // Else move content according to velocity with deceleration applied.
                     else if (m_Inertia)
                     {
-                        m_Velocity[axis] *= Mathf.Pow(m_DecelerationRate, deltaTime);
+                        m_Velocity[axis] *= Mathf.Pow(m_DecelerationRate, deltaTime); // 幂
                         if (Mathf.Abs(m_Velocity[axis]) < 1)
                             m_Velocity[axis] = 0;
                         position[axis] += m_Velocity[axis] * deltaTime;
@@ -1001,7 +1045,7 @@ namespace UnityEngine.UI
             if (m_Dragging && m_Inertia)
             {
                 Vector3 newVelocity = (m_Content.anchoredPosition - m_PrevPosition) / deltaTime;
-                m_Velocity = Vector3.Lerp(m_Velocity, newVelocity, deltaTime * 10);
+                m_Velocity = Vector3.Lerp(m_Velocity, newVelocity, deltaTime * 10); // 赋予初速度值
             }
 
             if (m_ViewBounds != m_PrevViewBounds || m_ContentBounds != m_PrevContentBounds || m_Content.anchoredPosition != m_PrevPosition)
@@ -1154,7 +1198,6 @@ namespace UnityEngine.UI
                 float offset = m_ContentBounds.max.y + elementSize * StartLine + contentSpacing * StartLine;
 
                 newLocalPosition -= offset - value * (totalSize - m_ViewBounds.size.y) - m_ViewBounds.max.y;
-                Debug.Log(newLocalPosition);
             }
             //==========LoopScrollRect==========
 

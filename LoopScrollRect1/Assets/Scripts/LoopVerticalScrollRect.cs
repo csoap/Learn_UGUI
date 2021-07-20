@@ -22,6 +22,7 @@ namespace UnityEngine.UI
             return size;
         }
 
+        // 尺寸
         protected override float GetDimension(Vector2 vector)
         {
             return vector.y;
@@ -47,7 +48,10 @@ namespace UnityEngine.UI
         protected override bool UpdateItems(Bounds viewBounds, Bounds contentBounds)
         {
             bool changed = false;
-
+            //Debug.Log(viewBounds);
+            //Debug.Log(viewBounds.max);
+            //Debug.Log(viewBounds.min);
+            //Debug.Log(contentBounds);
             // special case: handling move several page in one frame 处理在一帧中移动几页
             if (viewBounds.max.y < contentBounds.min.y && itemTypeEnd > itemTypeStart)
             {
